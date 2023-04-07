@@ -1,0 +1,68 @@
+#!/usr/bin/env bash 
+
+
+connect()
+{ 
+docker exec -it $1 bash
+}
+
+stop() 
+{ 
+docker stop $1 
+}
+
+start() 
+{ 
+docker start $1 
+}
+
+new() 
+{ 
+docker run -t -d -v $(pwd)/share:/home/share --privileged --name $(count init) $IMAGE
+connect $(count)
+}
+
+destroy() 
+{ 
+if [ $1 == "all" ] ; then  
+ docker ps -a | grep cloner | grep -v CONTAINER | rev | awk '{ print $1 }' \
+ | rev | while read i ; do 
+    printf "destroying $i\n" 
+    docker stop $i > /dev/null 2>&1
+    docker rm $i > /dev/null 2>&1 
+  done 
+else 
+  printf "destroying $i\n"
+  docker stop $1 > /dev/null 2>&1 
+  docker rm $1 > /dev/null 2>&1
+fi 
+}
+
+list()  
+{ 
+docker ps -a 
+}
+
+count()
+{ 
+count=$(docker ps -a | grep cloner | wc -l | awk '{ print $1}' )
+[[ $1 == "init" ]] && : ||(( count-- ))
+echo "cloner-${count}"
+}
+
+IMAGE=cloner
+RUN=$1 
+ARG=$2
+
+(($#)) &&
+  $RUN $ARG || {
+  printf "cloner commands:\n" 
+  declare -f | grep \(\) | sed 's/()//g' \
+  | while read i ; do 
+    if echo $i | grep -qE 'all|list|new' ; then 
+      printf "${i}"
+    else printf "${i}\t[container-id]\n" 
+    fi | sort -nk2 
+  done
+} 
+
