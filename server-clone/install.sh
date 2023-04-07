@@ -15,7 +15,7 @@ sleep 1
 printf "\ncreating Dockerfile...\n" && sleep .5
 cat <<EOF > ./Dockerfile
 FROM $IMAGE
-RUN echo peakbox > /etc/hostname
+RUN echo cloner > /etc/hostname
 RUN apk add --update $DEPS --no-cache
 RUN rc-update add docker boot
 # RUN rc-update add nfs boot
@@ -64,28 +64,28 @@ while true ; do
   [Yy]*) 
     printf "entering $name container...\n" 
     docker exec -it $(get-name) bash
-    peakbox-about | tee -a $LOGFILE 
+    cloner-about | tee -a $LOGFILE 
     exit 
     ;;
   [Nn]*) 
-    peakbox-about | tee -a $LOGFILE
+    cloner-about | tee -a $LOGFILE
     exit 
     ;; 
   *) 
     printf "input not understood! exiting...\n"
-    peakbox-about | tee -a $LOGFILE
+    cloner-about | tee -a $LOGFILE
     exit
     ;; 
   esac
 done 
 }
 
-peakbox-about() 
+cloner-about() 
 { 
 printf "\cloner container installed!\n" 
 printf "note: ./share directory is shared between your host and the container!\n" 
-printf "\n\tto enter this cloner container, run:\n\t./peakbox-ctl connect $(get-name)\n"  
-printf "\n\tto destroy this cloner container, run:\n\t./peakbox-ctl destroy $(get-name)\n" 
+printf "\n\tto enter this cloner container, run:\n\t./cloner-ctl connect $(get-name)\n"  
+printf "\n\tto destroy this cloner container, run:\n\t./cloner-ctl destroy $(get-name)\n" 
 printf "\n\trun ./cloner-ctl for container help\n\n" 
 }
 
@@ -100,4 +100,4 @@ DEPS="bash coreutils vim curl openssh sshpass xz docker openrc tree sqlite ansib
 } 
 
 init-docker | tee $LOGFILE
-run-peakbox  
+run-cloner  
