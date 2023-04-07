@@ -1,0 +1,57 @@
+#!/usr/bin/env bash 
+
+identify-os()
+{ 
+release=$(ssx connect $IPADDR "cat /etc/redhat-release" | awk '{ print $1 }')
+[[ $release == "CentOS" ]] && echo $IMAGE_CENTOS || echo $IMAGE_RH
+}
+
+get-name() 
+{ 
+ssx connect $IPADDR "cat /etc/hostname" 
+}
+
+
+clone() 
+{
+printf "cloning server now - this will take a while...\n"
+ssx connect $IPADDR "echo $(ssx sxdcode) | sudo -S tar zcvf - \
+  --exclude='opt/broadpeak' --exclude='var/log' --exclude='sys/fs/cgroup' --exclude='run' \
+    --exclude='home' --exclude='boot' --exclude='dev' --exclude='mnt' \
+      --exclude='var/spool/postfix' --exclude='root/support' --exclude='tmp' \
+      --exclude='opt/bkm' --exclude='opt/support/BKM100*' --exclude='opt/streams' \
+      --exclude='opt/support/CENTOS*' --exclude='opt/support/*gz' --exclude='*log' \ 
+      --exclude='*.log' --exclude='*.mmdb' --exclude='*.dbg' --exclude='proc/kcore' \
+      / " | docker import - ${NAME_IMAGE}
+    
+}
+
+run-container()
+{ 
+docker run -ti -d -v $(pwd)/share:/home/share --name ${NAME_CONTAINER} --privileged=true "${NAME_IMAGE}" "/sbin/init"
+}
+
+
+IPADDR=$1 
+IMAGE_RH="redhat/ubi8"
+IMAGE_CENTOS="centos" 
+IMAGE=$(identify-os)
+NFS_DIR=/home/share
+NAME_HOST=$(get-name)
+NAME_CONTAINER=$(echo ${NAME_HOST}_clone | tr '[:upper:]' '[:lower:]' )
+NAME_IMAGE=$(echo ${NAME_HOST}:$(date +%Y%m%d) | tr '[:upper:]' '[:lower:]')
+MY_VPN_IP=$(ssx connect $IPADDR "echo $(ssx sxdcode) \
+| sudo -S tail /var/log/secure \
+| grep *from.*ssh \
+| sed 's/ /\n/g' | grep -A1 from \
+| grep -v from" )
+INIT=./backup 
+
+((!$#)) && { 
+  printf "no IP supplied!"
+  sleep .25
+  printf " exiting...\n\n" 
+  exit 
+} 
+
+clone
