@@ -49,4 +49,4 @@ INIT=./backup
   exit 
 } 
 
-clone
+clone && run-container
