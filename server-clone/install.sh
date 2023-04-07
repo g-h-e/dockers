@@ -18,13 +18,9 @@ FROM $IMAGE
 RUN echo cloner > /etc/hostname
 RUN apk add --update $DEPS --no-cache
 RUN rc-update add docker boot
-# RUN rc-update add nfs boot
-# RUN rc-update add nfsmount boot
 RUN mkdir -p /home/toolkit/
-COPY ./src/toolkit home/toolkit
-RUN cp /home/toolkit/bpk-connect/src/bpk /usr/local/bin 
-RUN mv /home/toolkit/ansible /home
-RUN ln -sfn /home/ansible /etc 
+COPY ./src home/toolkit
+RUN mv /home/src/ssx /usr/local/bin 
 RUN echo "alias ll='ls -lrt --color=auto'" >> ~/.bashrc
 RUN echo "alias xsx='ssx connect'" >> ~/.bashrc
 RUN echo "alias sxget='ssx get'" >> ~/.bashrc
