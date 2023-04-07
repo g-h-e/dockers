@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# ssx connect
+# ver - 3.0
+# ghe - 2023
+#######
+
+connect()
+{
+sshpass -p "$(sxdcode $HASH)" ssh ${OPTIONS} -y \
+  "$(sxdcode $HASH -u)"@${SERVER_IP} $TARGET
+}
+
+get()
+{
+  filename=$(echo $TARGET | rev | cut -d'/' -f1 | rev)
+  printf "pulling $TARGET from $SERVER_IP...\n"
+  sshpass -p $(sxdcode $HASH) scp ${OPTIONS} \
+    $(sxdcode $HASH -u)@$SERVER_IP:$TARGET .  > /dev/null 2>&1 
+  [[ -f ./$filename ]] && {
+    printf "$filename downloaded successfully!\n" 
+  }
+}
+
+put()
+{
+sshpass -p "$(sxdcode $HASH)" scp -rp ${OPTIONS} \
+  $TARGET "$(sxdcode $HASH -u)"@${SERVER_IP}:/opt/support > /dev/null 2>&1 
+TARGET="hostname ; ls -lrt ${TARGET}" 
+connect
+}
+
+sxdcode() 
+{ 
+[[ $2 == "-u" ]] && crd=1 || crd=2
+echo $HASH | base64 -d | xxd -p -r | cut -d':' -f$crd
+}
+
+init()
+{ 
+[[ ]]
+}
+
+HASH="[PUT YOUR HASH HERE]"
+OPTIONS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" 
+SERVER_IP=$2
+TARGET=$3
+RUN=$1 
+
+$RUN 
