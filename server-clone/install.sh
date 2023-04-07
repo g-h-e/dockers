@@ -29,10 +29,10 @@ RUN echo "alias ll='ls -lrt --color=auto'" >> ~/.bashrc
 RUN echo "alias xsx='ssx connect'" >> ~/.bashrc
 RUN echo "alias sxget='ssx get'" >> ~/.bashrc
 RUN echo "alias sxput='ssx put'" >> ~/.bashrc
-RUN echo "PS1=\"peakbox \w % \"" >> ~/.bashrc 
+RUN echo "PS1=\"cloner \w % \"" >> ~/.bashrc 
 RUN echo "cd /home/" >> ~/.bashrc
 RUN echo "rc-update >> ~/.bashrc" 
-RUN echo "clear ; printf '\nwelcome to peakbox!\n\n' ; sleep .25" > ~/.welcome
+RUN echo "clear ; printf '\nwelcome to cloner!\n\n' ; sleep .25" > ~/.welcome
 RUN echo "echo \"container's /home/share directory is mounted on your local filesystem (cloner/share)\"" >> ~/.welcome
 RUN echo "bash ~/.welcome" >> ~/.bashrc
 RUN ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa
